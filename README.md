@@ -53,4 +53,5 @@
         kubectl apply -f web-consumer-fixed.yaml
     ```
 
-[img](img/img1.png)
+[img](img/img1.png)  
+
