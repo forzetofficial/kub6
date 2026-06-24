@@ -16,7 +16,7 @@
     kubectl create namespace web
     kubectl create namespace data
     ```
-2.  **Заменён образ контейнера:**
+2.  **Заменён образ контейнера:**  
     Образ в Deployment web-consumer был заменён с недоступного radial/busyboxplus:curl на рабочий curlimages/curl:latest с помощью команды:
 
     ```bash
@@ -24,42 +24,33 @@
     ```
 
     Исправлена команда подключения:
-    В Deployment web-consumer команда curl auth-db была заменена на полное доменное имя сервиса curl auth-db.data.svc.cluster.local, чтобы обеспечить корректное DNS-разрешение между пространствами имён.
-
-    ```
-
-    ```
-
-Для этого был создан и применён новый манифест web-consumer-fixed.yaml со следующим содержимым:
+    В Deployment web-consumer команда curl auth-db была заменена на полное доменное имя сервиса curl auth-db.data.svc.cluster.local, чтобы обеспечить корректное DNS-разрешение между пространствами имён. Для этого был создан и применён новый манифест web-consumer-fixed.yaml со следующим содержимым:
 
     ```yaml
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+        name: web-consumer
+        namespace: web
+        spec:
+        replicas: 2
+        selector:
+        matchLabels:
+        app: web-consumer
+        template:
+        metadata:
+        labels:
+        app: web-consumer
+        spec:
+        containers: - command: - sh - -c - while true; do curl auth-db.data.svc.cluster.local; sleep        5; done
+        image: curlimages/curl:latest
+        name: busybox
+    ```
 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-name: web-consumer
-namespace: web
-spec:
-replicas: 2
-selector:
-matchLabels:
-app: web-consumer
-template:
-metadata:
-labels:
-app: web-consumer
-spec:
-containers: - command: - sh - -c - while true; do curl auth-db.data.svc.cluster.local; sleep 5; done
-image: curlimages/curl:latest
-name: busybox
-
-````
-Применение исправленного манифеста:
+    Применение исправленного манифеста:
 
     ```bash
-
-kubectl apply -f web-consumer-fixed.yaml
+        kubectl apply -f web-consumer-fixed.yaml
     ```
 
 [img](img/img1.png)
-````
